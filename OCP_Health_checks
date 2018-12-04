@@ -76,9 +76,9 @@ oc -n default get pods
 9. Checking Internal Docker-Registry Health
 oc get svc
 NAME              CLUSTER-IP    EXTERNAL-IP  PORT(S)  AGE
-docker-registry  172.30.20.145  <none>      5000/TCP   1y
+docker-registry  x.x.x.x  <none>      5000/TCP   1y
 
-curl -kv https://172.30.20.145:5000/healthz
+curl -kv https://x.x.x.x:5000/healthz
 
 10. OPENSHIFT NETWORK CONNECTIVITY CHECKS
 dig +short docker-registry.default.svc.cluster.local
