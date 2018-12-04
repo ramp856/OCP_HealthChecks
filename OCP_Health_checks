@@ -25,6 +25,28 @@ ansible all -m shell -a 'cat /etc/resolv.conf'
 8. Check NTP checks:
 ansible all -m shell -a "grep '^server' /etc/chrony.conf"
 
+9. Check swap is off/on:
+ansible all -m shell -a 'cat /etc/fstab; free -m | grep ^Swap'
+
+10. Dump all the pod details to a txt file (backup):
+oc get pods -o yaml --all-namespaces > all_pods.txt
+oc describe pods --all-namespaces > all_pod_desc.txt
+
+11. Check the certificates if active/expired:
+ansible-playbook -v -i <inventory> /usr/share/ansible/openshift-ansible/playbooks/certificate_expiry/easy-mode.yaml
+
+12. Check the auth providers:
+ansible masters -m shell -a "grep -A6 oauth /etc/origin/master/master-config.yaml"
+
+13. Check RPM version vs known vulnerabilities
+atomic-ansible-???
+atomic host status
+
+14. Check if SELINUX is set to enforce mode in all nodes:
+ansible all -m shell -a "getenforce"
+
+15. 
+
 OPENSHIFT CHECKS:
 1. Check all the master servers are reachable:
 ansible masters --list
