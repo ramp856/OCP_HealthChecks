@@ -1,0 +1,89 @@
+Other Openshift Infrastructure checks using ansible:
+BASIC CHECKS:
+1. Firstly validate the hosts configured in ansible.
+ansible all –list
+
+2. Ping all the hosts:
+ansible all -m ping
+
+3. Check hostnames:
+ansible all -m shell -a 'hostname'
+
+4. Verify REDHAT releases:
+ansible all -m shell -a 'cat /etc/redhat-release'
+
+5. Disk/Partition checks:
+ansible all -m shell -a 'df -h | grep -i "/var/lib/origin/"'
+
+6. Memory checks:
+ansible all -m shell -a 'free -m'
+
+7. Netowrk and DNS checks:
+ansible all -m shell -a 'ip a sh <int-name>'
+ansible all -m shell -a 'cat /etc/resolv.conf'
+
+8. Check NTP checks:
+ansible all -m shell -a "grep '^server' /etc/chrony.conf"
+
+OPENSHIFT CHECKS:
+1. Check all the master servers are reachable:
+ansible masters --list
+
+2. Check master services are running:
+ansible masters -m shell -a 'systemctl status atomic-openshift-master-api'
+
+3. Use curl command to check the status code of the healthz on all master nodes:
+curl -k https://ops-masterx.test-lab.com:8443/healthz
+
+4. Check master controller services:
+ansible masters -m shell -a 'systemctl status atomic-openshift-master-controllers.service'
+
+5. Check the worker nodes available:
+oc get nodes 
+
+6. Check the ETCD cluster health:
+ansible masters -m shell -a 'systemctl status etcd' 
+
+7. Check if the routers are present and running:
+oc -n default get deploymentconfigs/router
+
+8. Check if corresponding registries are running:
+oc -n default get deploymentconfigs/docker-registry
+oc -n default get pods
+
+9. Checking Internal Docker-Registry Health
+oc get svc
+NAME              CLUSTER-IP    EXTERNAL-IP  PORT(S)  AGE
+docker-registry  172.30.20.145  <none>      5000/TCP   1y
+
+curl -kv https://172.30.20.145:5000/healthz
+
+10. OPENSHIFT NETWORK CONNECTIVITY CHECKS
+dig +short docker-registry.default.svc.cluster.local
+oc get svc/docker-registry -n default
+
+11. Check the internal URL's are accessible:
+curl https://ocp-portal-int.test-lab.com:8443/version
+curl -k https://ocp-portal-ext.test-lab.com:8443/version
+
+12. Create new project, application, access remote-shell from a test-user:
+oc new-project test-ocp
+oc new-app centos/httpd-24-centos7~https://github.com/sclorg/httpd-ex
+oc get pods
+oc rsh po/httpd-ex-1-5o764
+sh-4.2$ curl -kv https://docker-registry.default.svc.cluster.local:5000/healthz 
+--> connect to local docker registry and see if you get response 200 OK
+oc delete project test-ocp
+
+13. Wildcard DNS checks:
+dig *.apps.test-lab.com
+
+14. Docker storage checks:
+ansible all -m shell -a 'docker info | grep "Data Space Available"'
+
+15. Check Docker registries check:
+ansible all -m shell -a 'docker info | grep -A3 "Registries"'
+
+16. Check docker services are running:
+ansible nodes -m shell -a 'systemctl status docker'
+
